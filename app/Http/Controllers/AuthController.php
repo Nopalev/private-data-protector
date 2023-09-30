@@ -66,4 +66,34 @@ class AuthController extends Controller
 
         return redirect('/');
     }
+
+    public function edit()
+    {
+        return view('auth.passwords.change');
+    }
+
+    public function update(Request $request)
+    {
+        $user = User::find(Auth::user()->id);
+        $request->validate([
+            'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
+        ]);
+
+        if (Hash::check($request->old_password, $user->password)) {
+            $user->update([
+                'password' => Hash::make($request->password)
+            ]);
+
+            Auth::logout();
+
+            $request->session()->invalidate();
+
+            $request->session()->regenerateToken();
+
+            return redirect('/');
+        }
+        return back()->withErrors([
+            'old_password' => 'The provided credentials do not match our records.',
+        ])->onlyInput('old_password');
+    }
 }
