@@ -44,7 +44,7 @@ class FileController extends Controller
             $filetype = 'video';
         }
 
-        // $request->file->storeAs('public/' . $filetype . 's', $filename);
+        $request->file->storeAs('public/' . $filetype . 's', $filename);
         
         File::create([
             'user_id' => Auth::user()->id,
@@ -52,5 +52,9 @@ class FileController extends Controller
             'filetype' => $filetype
         ]);
         return redirect('home');
+    }
+
+    public function show(Request $request){
+        dd($request, $request->file_id);
     }
 }

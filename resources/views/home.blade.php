@@ -18,9 +18,16 @@
                         <li class="list-group-item">
                             <div class="row mb-3">
                                 <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $file->filetype }}</span>
-    
+
                                 <div class="col-md-6">
                                     <span>{{ $file->filename }}</span>
+                                    <form method="POST" action="{{ route('file.show') }}" class="hidden">
+                                        @csrf
+                                        @method('GET')
+                                        <button type="submit" class="btn btn-primary" name="file_id" value="{{ $file->id }}">
+                                            {{ __('Details') }}
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </li>
