@@ -28,12 +28,21 @@
                             </a>
                         </button>
                         <form method="POST" action="{{ route('file.download') }}" class="hidden">
-                        @csrf
-                        @method('GET')
-                        <button type="submit" class="btn btn-primary" name="file_id" value="{{ $file->id }}">
-                            {{ __('Download') }}
-                        </button>
-                    </form>
+                            @csrf
+                            @method('GET')
+                            <button type="submit" class="btn btn-primary" name="file_id" value="{{ $file->id }}">
+                                {{ __('Download') }}
+                            </button>
+                        </form>
+                        <form method="POST" action="{{ route('file.delete') }}" class="hidden">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger" name="file_id" value="{{ $file->id }}">
+                                <strong>
+                                    {{ __('Delete') }}
+                                </strong>
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>

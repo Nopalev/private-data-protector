@@ -68,4 +68,10 @@ class FileController extends Controller
           );
         return response()->download(public_path('storage/' . $file->filetype . 's/' . $file->filename));
     }
+
+    public function destroy(Request $request){
+        $file = File::find($request->file_id);
+        $file->delete();
+        return redirect('home')->with('status', 'File ' . $file->filename . ' has been deleted.');
+    }
 }

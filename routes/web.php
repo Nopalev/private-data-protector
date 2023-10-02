@@ -53,4 +53,5 @@ Route::controller(FileController::class)->group(function(){
     Route::post('/file', 'create')->name('file.save');
     Route::get('/file', 'show')->name('file.show');
     Route::get('/file/download', 'download')->name('file.download');
+    Route::delete('/file', 'destroy')->name('file.delete');
 });
