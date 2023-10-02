@@ -60,4 +60,12 @@ class FileController extends Controller
             'file' => $file
         ]);
     }
+
+    public function download(Request $request){
+        $file = File::find($request->file_id);
+        $header = array(
+            'Content-Type: application/pdf',
+          );
+        return response()->download(public_path('storage/' . $file->filetype . 's/' . $file->filename));
+    }
 }

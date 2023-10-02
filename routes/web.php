@@ -52,4 +52,5 @@ Route::controller(FileController::class)->group(function(){
     Route::get('/file/add', 'form')->name('file.add');
     Route::post('/file', 'create')->name('file.save');
     Route::get('/file', 'show')->name('file.show');
+    Route::get('/file/download', 'download')->name('file.download');
 });
