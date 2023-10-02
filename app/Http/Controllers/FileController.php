@@ -55,6 +55,9 @@ class FileController extends Controller
     }
 
     public function show(Request $request){
-        dd($request, $request->file_id);
+        $file = File::find($request->file_id);
+        return view('file.show', [
+            'file' => $file
+        ]);
     }
 }
