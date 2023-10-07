@@ -2,9 +2,11 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BiodataController;
+use App\Http\Controllers\EncryptionController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\EncryptionSetCheck;
 use App\Http\Middleware\FileMaster;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -41,7 +43,7 @@ Route::controller(UserController::class)->group(function(){
 });
 
 Route::controller(BiodataController::class)->group(function(){
-    Route::get('/biodata', 'index')->name('biodata');
+    Route::get('/biodata', 'index')->name('biodata')->middleware(EncryptionSetCheck::class);
     Route::post('/biodata', 'create')->name('biodata');
     Route::get('/biodata/edit', 'edit')->name('biodata.edit');
     Route::put('/biodata', 'update')->name('biodata.update');
@@ -49,9 +51,14 @@ Route::controller(BiodataController::class)->group(function(){
 
 Route::controller(FileController::class)->group(function(){
     Route::get('/home', 'index')->name('home');
-    Route::get('/file/add', 'form')->name('file.add');
+    Route::get('/file/add', 'form')->name('file.add')->middleware(EncryptionSetCheck::class);
     Route::post('/file', 'create')->name('file.save');
     Route::get('/file', 'show')->name('file.show');
     Route::get('/file/download', 'download')->name('file.download');
     Route::delete('/file', 'destroy')->name('file.delete');
+});
+
+Route::controller(EncryptionController::class)->group(function(){
+    Route::get('/encryption/set', 'index')->name('encryption.set');
+    Route::patch('/encryption/set', 'update')->name('encryption.set');
 });

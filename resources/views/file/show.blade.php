@@ -11,7 +11,7 @@
                     @if ($file->filetype === 'image')
                     <img src="{{ asset('storage/images/'.$file->filename) }}">
                     @elseif ($file->filetype === 'video')
-                    <video controls>
+                    <video controls width="800" height="600">
                         <source src="{{ asset('storage/videos/'.$file->filename) }}" type="video/mp4">
                     </video>
                     @endif
