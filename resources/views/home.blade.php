@@ -8,7 +8,9 @@
                 <div class="card-header">{{ __('Uploaded Files') }}</div>
 
                 <div class="card-body">
-                    @if(Session::has('status'))
+                    @if(Session::has('alert'))
+                    <p class="alert alert-danger">{{ Session::get('alert') }}</p>
+                    @elseif(Session::has('status'))
                     <p class="alert alert-info">{{ Session::get('status') }}</p>
                     @endif
                     @if (!empty($status))

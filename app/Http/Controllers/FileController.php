@@ -7,6 +7,8 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
@@ -72,6 +74,7 @@ class FileController extends Controller
     public function destroy(Request $request){
         $file = File::find($request->file_id);
         $file->delete();
+        Storage::delete('public/' . $file->filetype . 's/'. $file->filename);
         return redirect('home')->with('status', 'File ' . $file->filename . ' has been deleted.');
     }
 }

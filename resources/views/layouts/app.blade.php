@@ -64,6 +64,10 @@
                         </li>
 
                         <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="{{ route('encryption.set') }}">{{ __('Encryption') }}</a>
+                        </li>
+
+                        <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ route('logout') }}" onclick="event.preventDefault();
                                              document.getElementById('logout-form').submit();">{{ __('Logout') }}</a>
                             <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
