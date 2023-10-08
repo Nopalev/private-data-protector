@@ -27,17 +27,17 @@
                                 {{ __('Back') }}
                             </a>
                         </button>
-                        <form method="POST" action="{{ route('file.download') }}" class="hidden">
-                            @csrf
-                            @method('GET')
-                            <button type="submit" class="btn btn-primary" name="file_id" value="{{ $file->id }}">
+
+                        <button type="button" class="btn btn-primary">
+                            <a class="nav-link active" aria-current="page" href="{{ route('file.download', $file->id) }}">
                                 {{ __('Download') }}
-                            </button>
-                        </form>
-                        <form method="POST" action="{{ route('file.delete') }}" class="hidden">
+                            </a>
+                        </button>
+
+                        <form method="POST" action="{{ route('file.delete', $file->id) }}" class="hidden">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn btn-danger" name="file_id" value="{{ $file->id }}">
+                            <button type="submit" class="btn btn-danger">
                                 <strong>
                                     {{ __('Delete') }}
                                 </strong>

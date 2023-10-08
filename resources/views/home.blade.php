@@ -26,13 +26,11 @@
 
                                 <div class="col-md-6">
                                     <span>{{ $file->filename }}</span>
-                                    <form method="POST" action="{{ route('file.show') }}" class="hidden">
-                                        @csrf
-                                        @method('GET')
-                                        <button type="submit" class="btn btn-primary" name="file_id" value="{{ $file->id }}">
+                                    <button type="button" class="btn btn-primary">
+                                        <a class="nav-link active" aria-current="page" href="{{ route('file.password', $file->id) }}">
                                             {{ __('Details') }}
-                                        </button>
-                                    </form>
+                                        </a>
+                                    </button>
                                 </div>
                             </div>
                         </li>
