@@ -28,8 +28,6 @@ class EncryptionController extends Controller
     }
 
     public function update(Request $request){
-
-        
         $user = User::find(Auth::user()->id);
         $user->encryption_method = $request->method;
         $user->encryption_mode = $request->mode;
