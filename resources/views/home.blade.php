@@ -8,6 +8,11 @@
                 <div class="card-header">{{ __('Uploaded Files') }}</div>
 
                 <div class="card-body">
+                    @if(Session::has('alert'))
+                    <p class="alert alert-danger">{{ Session::get('alert') }}</p>
+                    @elseif(Session::has('status'))
+                    <p class="alert alert-info">{{ Session::get('status') }}</p>
+                    @endif
                     @if (!empty($status))
                     <div class="alert alert-info" role="alert">
                         {{ $status }}
@@ -21,13 +26,11 @@
 
                                 <div class="col-md-6">
                                     <span>{{ $file->filename }}</span>
-                                    <form method="POST" action="{{ route('file.show') }}" class="hidden">
-                                        @csrf
-                                        @method('GET')
-                                        <button type="submit" class="btn btn-primary" name="file_id" value="{{ $file->id }}">
+                                    <button type="button" class="btn btn-primary">
+                                        <a class="nav-link active" aria-current="page" href="{{ route('file.password', $file->id) }}">
                                             {{ __('Details') }}
-                                        </button>
-                                    </form>
+                                        </a>
+                                    </button>
                                 </div>
                             </div>
                         </li>
