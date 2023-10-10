@@ -34,7 +34,7 @@ class FileController extends Controller
             ]);
     
             $timestamp = time();
-            $dateString = date('Y-m-d H;i;s', $timestamp);
+            $dateString = date('Y-m-d_H-i-s', $timestamp);
             $filename = $dateString. '_' . $request->file->getClientOriginalName();
             $filetype = '';
             $extension = $request->file->getClientOriginalExtension();
