@@ -33,8 +33,9 @@ class FileController extends Controller
                 'file' => 'required|mimes:pdf,docx,xls,xlsx,jpg,jpeg,png,mp4'
             ]);
     
-            $time = Carbon::now();
-            $filename = $time->toDateString() . '_' . $time->toTimeString() . '_' . $request->file->getClientOriginalName();
+            $timestamp = time();
+            $dateString = date('Y-m-d_H-i-s', $timestamp);
+            $filename = $dateString. '_' . $request->file->getClientOriginalName();
             $filetype = '';
             $extension = $request->file->getClientOriginalExtension();
     
