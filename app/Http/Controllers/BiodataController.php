@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Encryptor\Encryptor;
 use App\Models\Biodata;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,9 +22,6 @@ class BiodataController extends Controller
 
     public function show(Request $request){
         if(Hash::check($request->password, Auth::user()->password)){
-            $encryptor = new Encryptor;
-            // $key = $encryptor->derive_key($request->password);
-            $iv = $encryptor->derive_IV($request->password);
             $biodata = User::find(Auth::user()->id)->biodata;
             return view('biodata.show', [
                 'biodata' => $biodata

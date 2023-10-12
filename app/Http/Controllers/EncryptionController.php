@@ -27,7 +27,7 @@ class EncryptionController extends Controller
             }
             $password = substr($password, 1) . substr($password, 0, 1);
         }
-        dd($password, $appkey, strlen($password));
+        return $password;
     }
 
     private function derive_IV(String $password){
@@ -40,7 +40,7 @@ class EncryptionController extends Controller
             }
             $password = substr($password, 1) . substr($password, 0, 1);
         }
-        dd($password, $appkey, strlen($password));
+        return $password;
     }
 
     public function index(){
