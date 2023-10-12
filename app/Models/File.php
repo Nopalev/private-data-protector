@@ -10,7 +10,7 @@ class File extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'filename', 'filetype'];
+    protected $fillable = ['user_id', 'filename', 'filetype', 'mime'];
 
     public function user(): BelongsTo
     {
