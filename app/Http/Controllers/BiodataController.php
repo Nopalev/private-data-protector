@@ -24,7 +24,8 @@ class BiodataController extends Controller
     public function show(Request $request){
         if(Hash::check($request->password, Auth::user()->password)){
             $encryptor = new Encryptor;
-            $key = $encryptor->derive_key($request->password);
+            // $key = $encryptor->derive_key($request->password);
+            $iv = $encryptor->derive_IV($request->password);
             $biodata = User::find(Auth::user()->id)->biodata;
             return view('biodata.show', [
                 'biodata' => $biodata
