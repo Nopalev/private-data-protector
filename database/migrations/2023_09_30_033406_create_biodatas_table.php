@@ -14,11 +14,11 @@ return new class extends Migration
         Schema::create('biodatas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->string('name');
-            $table->string('gender');
-            $table->string('nationality');
-            $table->string('religion');
-            $table->string('marital_status');
+            $table->binary('name');
+            $table->binary('gender');
+            $table->binary('nationality');
+            $table->binary('religion');
+            $table->binary('marital_status');
             $table->timestamps();
         });
     }

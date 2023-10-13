@@ -25,7 +25,6 @@
                                 <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $file->filetype }}</span>
 
                                 <div class="col-md-6">
-                                    <span>{{ $file->filename }}</span>
                                     <button type="button" class="btn btn-primary">
                                         <a class="nav-link active" aria-current="page" href="{{ route('file.password', $file->id) }}">
                                             {{ __('Details') }}

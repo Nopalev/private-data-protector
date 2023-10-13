@@ -4,11 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\File;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
@@ -29,12 +28,14 @@ class FileController extends Controller
 
     public function create(Request $request){
         if(Hash::check($request->password, Auth::user()->password)){
+            $encryptor = new EncryptionController;
             $request->validate([
                 'file' => 'required|mimes:pdf,docx,xls,xlsx,jpg,jpeg,png,mp4'
             ]);
     
-            $time = Carbon::now();
-            $filename = $time->toDateString() . '_' . $time->toTimeString() . '_' . $request->file->getClientOriginalName();
+            $timestamp = time();
+            $dateString = date('Y-m-d_H-i-s', $timestamp);
+            $filename = $dateString. '_' . $request->file->getClientOriginalName();
             $filetype = '';
             $extension = $request->file->getClientOriginalExtension();
     
@@ -47,13 +48,26 @@ class FileController extends Controller
             else{
                 $filetype = 'video';
             }
+
+            // $raw = $request->file->get();
+
+            // $encrypted_file = new UploadedFile(
+            //     $encryptor->encrypt($request->password, $raw),
+            //     $request->file->getFilename(),
+            //     $request->file->getMimeType(),
+            //     0,
+            //     true // Mark it as test, since the file isn't from real HTTP POST.
+            // );
+
+            // dd($request->file);
     
             $request->file->storeAs('public/' . $filetype . 's', $filename);
             
             File::create([
                 'user_id' => Auth::user()->id,
                 'filename' => $filename,
-                'filetype' => $filetype
+                'filetype' => $filetype,
+                'mime' => $request->file->getClientMimeType()
             ]);
             return redirect('home');
         }
@@ -69,16 +83,20 @@ class FileController extends Controller
     public function show(Request $request, String $id){
         if(Hash::check($request->password, Auth::user()->password)){
             $file = File::find($id);
+
             return view('file.show', [
-                'file' => $file
+                'file' => $file,
             ]);
         }
         return redirect()->back()->with('alert', 'The provided password did not match our records.');
     }
 
-    public function download(String $id){
-        $file = File::find($id);
-        return response()->download(public_path('storage/' . $file->filetype . 's/' . $file->filename));
+    public function download(Request $request, String $id){
+        if(Hash::check($request->password, Auth::user()->password)){
+            $file = File::find($id);
+            return response()->download(public_path('storage/' . $file->filetype . 's/' . $file->filename));
+        }
+        return redirect('home')->with('alert', 'The provided password did not match our records.');
     }
 
     public function destroy(String $id){
