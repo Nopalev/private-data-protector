@@ -8,13 +8,6 @@
                 <div class="card-header">{{ __('File Upload') }}</div>
 
                 <div class="card-body">
-                    @if ($file->filetype === 'image')
-                    <img src="{{ asset('storage/images/'.$file->filename) }}">
-                    @elseif ($file->filetype === 'video')
-                    <video controls width="800" height="600">
-                        <source src="{{ asset('storage/videos/'.$file->filename) }}" type="video/mp4">
-                    </video>
-                    @endif
                     <ul>
                         <li>File Name: {{ $file->filename }}</li>
                         <li>File Type: {{ $file->filetype }}</li>
