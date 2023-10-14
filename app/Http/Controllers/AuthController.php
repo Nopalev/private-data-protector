@@ -78,8 +78,10 @@ class AuthController extends Controller
         $request->validate([
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
-
+        
         if (Hash::check($request->old_password, $user->password)) {
+            $encryptor = new EncryptionController;
+            $encryptor->changePassword($request->old_password, $request->password);
             $user->update([
                 'password' => Hash::make($request->password)
             ]);

@@ -6,7 +6,7 @@ use App\Models\PublicKey;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
 
-class key_generate extends Command
+class KeyGenerate extends Command
 {
     /**
      * The name and signature of the console command.
