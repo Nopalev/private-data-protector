@@ -188,6 +188,8 @@ class EncryptionController extends Controller
             $rc4->setKey($this->derive_key($password));
             return $rc4->encrypt($text);
         }
+        $time_end = microtime_float(); //end counting time
+        $time = $time_end - $time_start; //counting time
     }
 
     public function decrypt(String $password, $text)
@@ -211,6 +213,43 @@ class EncryptionController extends Controller
             $rc4 = new RC4(strtolower($user->encryption_mode));
             $rc4->setKey($this->derive_key($password));
             return $rc4->decrypt($text);
+        }
+ 
+
+    public function changePassword(String $old_password, String $new_password){
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        if (!is_null($user->biodata)) {
+            $biodata = $user->biodata;
+
+            $biodata->name = $this->decrypt( $old_password, $biodata->name);
+            $biodata->gender = $this->decrypt( $old_password, $biodata->gender);
+            $biodata->nationality = $this->decrypt( $old_password, $biodata->nationality);
+            $biodata->religion = $this->decrypt( $old_password, $biodata->religion);
+            $biodata->marital_status = $this->decrypt( $old_password, $biodata->marital_status);
+
+            $biodata->name = $this->encrypt( $new_password, $biodata->name);
+            $biodata->gender = $this->encrypt( $new_password, $biodata->gender);
+            $biodata->nationality = $this->encrypt( $new_password, $biodata->nationality);
+            $biodata->religion = $this->encrypt( $new_password, $biodata->religion);
+            $biodata->marital_status = $this->encrypt( $new_password, $biodata->marital_status);
+
+            $biodata->save();
+        }
+        if ($user->files->isNotEmpty()) {
+            foreach ($user->files as $file) {
+                $file->filename = $this->decrypt( $old_password, $file->filename);
+                $file->filename = $this->encrypt( $new_password, $file->filename);
+                $file->save();
+
+                $file_src = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'r');
+                $raw = fread($file_src, filesize(public_path('storage/' . $file->filetype . 's/' . $file->filecode)));
+                fclose($file_src);
+
+                $file_dest = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'w+');
+                fwrite($file_dest, $this->encrypt( $new_password, $this->decrypt( $old_password, $raw)));
+                fclose($file_dest);
+            }
         }
     }
 
