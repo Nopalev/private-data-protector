@@ -6,23 +6,26 @@ use App\Models\PublicKey;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
 use phpseclib3\Crypt\RC4;
 
 class EncryptionController extends Controller
 {
-    private function getPublicKey(String $type){
+    private function getPublicKey(String $type)
+    {
         $appkey = PublicKey::all()->last();
         return $appkey[$type];
     }
 
-    private function derive_key(String $password){
+    private function derive_key(String $password)
+    {
         $password .= $password;
         $password = substr($password, 0, 16);
         $appkey = $this->getPublicKey('public_key');
-        for($i = 0; $i < 4; $i++){
-            for($j = 0; $j < 16; $j++){
+        for ($i = 0; $i < 4; $i++) {
+            for ($j = 0; $j < 16; $j++) {
                 $password[$j] =  $password[$j] ^ $appkey[$j];
             }
             $password = substr($password, 1) . substr($password, 0, 1);
@@ -30,12 +33,13 @@ class EncryptionController extends Controller
         return $password;
     }
 
-    private function derive_IV(String $password){
+    private function derive_IV(String $password)
+    {
         $password .= $password;
-        $password = substr($password, strlen($password)-16, strlen($password));
+        $password = substr($password, strlen($password) - 16, strlen($password));
         $appkey = $this->getPublicKey('public_IV');
-        for($i = 0; $i < 4; $i++){
-            for($j = 0; $j < 16; $j++){
+        for ($i = 0; $i < 4; $i++) {
+            for ($j = 0; $j < 16; $j++) {
                 $password[$j] =  $password[$j] ^ $appkey[$j];
             }
             $password = substr($password, 1) . substr($password, 0, 1);
@@ -43,7 +47,86 @@ class EncryptionController extends Controller
         return $password;
     }
 
-    public function index(){
+    private function changeEncryptionMethod(
+        String $old_method,
+        String $new_method,
+        String $old_mode,
+        String $new_mode,
+        String $password
+    ) {
+        $old = $new = null;
+        if ($old_method === 'AES') {
+            $old = new AES(strtolower($old_mode));
+            $old->setKey($this->derive_key($password));
+            if ($old->usesIV()) {
+                $old->setIV($this->derive_IV($password));
+            }
+        } elseif ($old_method === 'DES') {
+            $old = new DES(strtolower($old_mode));
+            $old->setKey(substr($this->derive_key($password), 0, 8));
+            if ($old->usesIV()) {
+                $old->setIV(substr($this->derive_IV($password), 0, 8));
+            }
+        } elseif ($old_method === 'RC4') {
+            $old = new RC4(strtolower($old_mode));
+            $old->setKey($this->derive_key($password));
+        }
+
+        if ($new_method === 'AES') {
+            $new = new AES(strtolower($new_mode));
+            $new->setKey($this->derive_key($password));
+            if ($new->usesIV()) {
+                $new->setIV($this->derive_IV($password));
+            }
+        } elseif ($new_method === 'DES') {
+            $new = new DES(strtolower($new_mode));
+            $new->setKey(substr($this->derive_key($password), 0, 8));
+            if ($new->usesIV()) {
+                $new->setIV(substr($this->derive_IV($password), 0, 8));
+            }
+        } elseif ($new_method === 'RC4') {
+            $new = new RC4(strtolower($new_mode));
+            $new->setKey($this->derive_key($password));
+        }
+
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        if (!is_null($user->biodata)) {
+            $biodata = $user->biodata;
+
+            $biodata->name = $old->decrypt($biodata->name);
+            $biodata->gender = $old->decrypt($biodata->gender);
+            $biodata->nationality = $old->decrypt($biodata->nationality);
+            $biodata->religion = $old->decrypt($biodata->religion);
+            $biodata->marital_status = $old->decrypt($biodata->marital_status);
+
+            $biodata->name = $new->encrypt($biodata->name);
+            $biodata->gender = $new->encrypt($biodata->gender);
+            $biodata->nationality = $new->encrypt($biodata->nationality);
+            $biodata->religion = $new->encrypt($biodata->religion);
+            $biodata->marital_status = $new->encrypt($biodata->marital_status);
+
+            $biodata->save();
+        }
+        if ($user->files->isNotEmpty()) {
+            foreach ($user->files as $file) {
+                $file->filename = $old->decrypt($file->filename);
+                $file->filename = $new->encrypt($file->filename);
+                $file->save();
+
+                $file_src = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'r');
+                $raw = fread($file_src, filesize(public_path('storage/' . $file->filetype . 's/' . $file->filecode)));
+                fclose($file_src);
+
+                $file_dest = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'w+');
+                fwrite($file_dest, $new->encrypt($old->decrypt($raw)));
+                fclose($file_dest);
+            }
+        }
+    }
+
+    public function index()
+    {
         $encryption_method = [
             'AES',
             'DES',
@@ -56,67 +139,115 @@ class EncryptionController extends Controller
             'CTR'
         ];
 
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        $set = false;
+        if (!(is_null($user->encryption_method) && is_null($user->encryption_mode))) {
+            $set = true;
+        }
+
         return view('encryption.form', [
             'methods' => $encryption_method,
-            'modes' => $encryption_mode
+            'modes' => $encryption_mode,
+            'set' => $set
         ]);
     }
 
-    public function update(Request $request){
-        $user = User::find(Auth::user()->id);
-        $user->encryption_method = $request->method;
-        $user->encryption_mode = $request->mode;
-        $user->save();
-        return redirect('home')->with('status', 'Encryption setting has been updated');
+    public function update(Request $request)
+    {
+        if (Hash::check($request->password, Auth::user()->password)) {
+            $user = User::find(Auth::user()->id);
+            $this->changeEncryptionMethod($user->encryption_method, $request->method, $user->encryption_mode, $request->mode, $request->password);
+            $user->encryption_method = $request->method;
+            $user->encryption_mode = $request->mode;
+            $user->save();
+            return redirect('home')->with('status', 'Encryption setting has been updated');
+        }
+        return redirect()->back()->with('alert', 'The provided password did not match our records.');
     }
 
-    public function encrypt(String $password, $text){
+    public function encrypt(String $password, $text)
+    {
         $user = User::find(Auth::user()->id);
-        if($user->encryption_method === 'AES'){
+        if ($user->encryption_method === 'AES') {
             $aes = new AES(strtolower($user->encryption_mode));
             $aes->setKey($this->derive_key($password));
-            if($aes->usesIV()){
+            if ($aes->usesIV()) {
                 $aes->setIV($this->derive_IV($password));
             }
             return $aes->encrypt($text);
-        }
-        elseif($user->encryption_method === 'DES'){
+        } elseif ($user->encryption_method === 'DES') {
             $des = new DES(strtolower($user->encryption_mode));
-            $des->setKey($this->derive_key($password));
-            if($des->usesIV()){
-                $des->setIV($this->derive_IV($password));
+            $des->setKey(substr($this->derive_key($password), 0, 8));
+            if ($des->usesIV()) {
+                $des->setIV(substr($this->derive_IV($password), 0, 8));
             }
             return $des->encrypt($text);
-        }
-        elseif($user->encryption_method === 'RC4'){
+        } elseif ($user->encryption_method === 'RC4') {
             $rc4 = new RC4(strtolower($user->encryption_mode));
             $rc4->setKey($this->derive_key($password));
             return $rc4->encrypt($text);
         }
     }
 
-    public function decrypt(String $password, $text){
+    public function decrypt(String $password, $text)
+    {
         $user = User::find(Auth::user()->id);
-        if($user->encryption_method === 'AES'){
+        if ($user->encryption_method === 'AES') {
             $aes = new AES(strtolower($user->encryption_mode));
             $aes->setKey($this->derive_key($password));
-            if($aes->usesIV()){
+            if ($aes->usesIV()) {
                 $aes->setIV($this->derive_IV($password));
             }
             return $aes->decrypt($text);
-        }
-        elseif($user->encryption_method === 'DES'){
+        } elseif ($user->encryption_method === 'DES') {
             $des = new DES(strtolower($user->encryption_mode));
-            $des->setKey($this->derive_key($password));
-            if($des->usesIV()){
-                $des->setIV($this->derive_IV($password));
+            $des->setKey(substr($this->derive_key($password), 0, 8));
+            if ($des->usesIV()) {
+                $des->setIV(substr($this->derive_IV($password), 0, 8));
             }
             return $des->decrypt($text);
-        }
-        elseif($user->encryption_method === 'RC4'){
+        } elseif ($user->encryption_method === 'RC4') {
             $rc4 = new RC4(strtolower($user->encryption_mode));
             $rc4->setKey($this->derive_key($password));
             return $rc4->decrypt($text);
+        }
+    }
+
+    public function changePassword(String $old_password, String $new_password){
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+        if (!is_null($user->biodata)) {
+            $biodata = $user->biodata;
+
+            $biodata->name = $this->decrypt( $old_password, $biodata->name);
+            $biodata->gender = $this->decrypt( $old_password, $biodata->gender);
+            $biodata->nationality = $this->decrypt( $old_password, $biodata->nationality);
+            $biodata->religion = $this->decrypt( $old_password, $biodata->religion);
+            $biodata->marital_status = $this->decrypt( $old_password, $biodata->marital_status);
+
+            $biodata->name = $this->encrypt( $new_password, $biodata->name);
+            $biodata->gender = $this->encrypt( $new_password, $biodata->gender);
+            $biodata->nationality = $this->encrypt( $new_password, $biodata->nationality);
+            $biodata->religion = $this->encrypt( $new_password, $biodata->religion);
+            $biodata->marital_status = $this->encrypt( $new_password, $biodata->marital_status);
+
+            $biodata->save();
+        }
+        if ($user->files->isNotEmpty()) {
+            foreach ($user->files as $file) {
+                $file->filename = $this->decrypt( $old_password, $file->filename);
+                $file->filename = $this->encrypt( $new_password, $file->filename);
+                $file->save();
+
+                $file_src = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'r');
+                $raw = fread($file_src, filesize(public_path('storage/' . $file->filetype . 's/' . $file->filecode)));
+                fclose($file_src);
+
+                $file_dest = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'w+');
+                fwrite($file_dest, $this->encrypt( $new_password, $this->decrypt( $old_password, $raw)));
+                fclose($file_dest);
+            }
         }
     }
 }

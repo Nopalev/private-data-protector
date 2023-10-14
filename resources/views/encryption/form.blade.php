@@ -18,7 +18,7 @@
                             <div class="col-md-6">
                                 <select class="form-select" aria-label="Default select example" name="method">
                                     @foreach($methods as $method)
-                                    @if($loop->first)
+                                    @if($method == Auth::user()->encryption_method)
                                     <option value={{$method}} selected>{{$method}}</option>
                                     @else
                                     <option value={{$method}}>{{$method}}</option>
@@ -34,7 +34,7 @@
                             <div class="col-md-6">
                                 <select class="form-select" aria-label="Default select example" name="mode">
                                     @foreach($modes as $mode)
-                                    @if($loop->first)
+                                    @if($mode == Auth::user()->encryption_mode)
                                     <option value={{$mode}} selected>{{$mode}}</option>
                                     @else
                                     <option value={{$mode}}>{{$mode}}</option>
@@ -43,6 +43,20 @@
                                 </select>
                             </div>
                         </div>
+
+                        @if($set)
+                        <div class="row mb-3">
+                            <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>
+
+                            <div class="col-md-6">
+                                <p class="alert alert-info">Please confirm your password.</p>
+                                @if(Session::has('alert'))
+                                <p class="alert alert-danger">{{ Session::get('alert') }}</p>
+                                @endif
+                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                            </div>
+                        </div>
+                        @endif
 
                         <div class="row mb-0">
                             <div class="col-md-8 offset-md-4">

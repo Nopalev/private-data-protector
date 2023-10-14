@@ -70,10 +70,8 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 ```bash
 cp .env.example .env
 composer install
-php artisan key:generate
-php artisan app:key_generate
-php artisan storage:link
 npm install
+php artisan install
 ```
 
 ## Running The Project
@@ -82,4 +80,10 @@ npm install
 php artisan serve
 npm run dev
 php artisan schedule:work
+```
+
+## Seeding Datasets
+
+```bash
+php artisan dataset:seed
 ```
