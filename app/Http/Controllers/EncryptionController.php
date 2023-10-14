@@ -71,6 +71,7 @@ class EncryptionController extends Controller
     }
 
     public function encrypt(String $password, $text){
+        $time_start = microtime_float(); //start counting time
         $user = User::find(Auth::user()->id);
         if($user->encryption_method === 'AES'){
             $aes = new AES(strtolower($user->encryption_mode));
@@ -93,9 +94,12 @@ class EncryptionController extends Controller
             $rc4->setKey($this->derive_key($password));
             return $rc4->encrypt($text);
         }
+        $time_end = microtime_float(); //end counting time
+        $time = $time_end - $time_start; //counting time
     }
 
     public function decrypt(String $password, $text){
+        $time_start = microtime_float(); //start counting time
         $user = User::find(Auth::user()->id);
         if($user->encryption_method === 'AES'){
             $aes = new AES(strtolower($user->encryption_mode));
@@ -118,5 +122,13 @@ class EncryptionController extends Controller
             $rc4->setKey($this->derive_key($password));
             return $rc4->decrypt($text);
         }
+        $time_end = microtime_float(); //end counting time
+        $time = $time_end - $time_start; //counting time
+        $this->warn('Decrypt Time: ' . $time);
+    }
+    function microtime_float()
+    {
+        list($usec, $sec) = explode(" ", microtime());
+        return ((float)$usec + (float)$sec);
     }
 }
