@@ -1,67 +1,64 @@
-    <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Information Security Project
 
-    <p align="center">
-    <a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-    <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-    </p>
+|           Nama            |    NRP     |
+| :-----------------------: | :--------: |
+| Andhika Ditya Bagaskara D | 5025201096 |
+|   Ferry Nur Alfian E P    | 5025201214 |
+|     Naufal Faadhilah      | 5025201221 |
+|  Hemakesha Heriqbaldi R   | 5025201209 |
 
-    # Information Security Project
+## Table of Contents
 
-    <!-- team members table -->
+- [About](#about-the-project)
+- [Flow](#the-flow)
+- [Note](#something-to-note)
+- [Tech Stack](#built-with)
+- [Instalation](#installation)
+- [Run](#running-the-project)
+- [Seed](#seeding-datasets)
 
-    |           Nama            |    NRP     |
-    | :-----------------------: | :--------: |
-    | Andhika Ditya Bagaskara D | 5025201096 |
-    |   Ferry Nur Alfian E P    | 5025201214 |
-    |     Naufal Faadhilah      | 5025201221 |
-    |  Hemakesha Heriqbaldi R   | 5025201209 |
+## About The Project
 
-    <!-- end team members table -->
+We are using Laravel Framework to build this project. This project is a web application that can be used to store and manage your passwords. This is made for our project in Information Security course.
 
-    ## About The Project
+The method that we use to encrypt the file are AES, DES, and RC4. The mode that we use are CBC, CFB, OFB, and CTR.
 
-    We are using Laravel Framework to build this project. This project is a web application that can be used to store and manage your passwords. This is made for our project in Information Security course.
+## The Flow
 
-    The method that we use to encrypt the file are AES, DES, and RC4. The mode that we use are CBC, CFB, OFB, and CTR.
+1. User register and login to the web application.
+2. User choose the encryption method and mode that they want to use.
+3. User add, download, and delete their files.
+4. Each file will be encrypted and decrypted using the method and mode that user choose.
+5. Each process will require a password that user input.
 
-    ## The Flow
+## Something To Note
 
-    1. User register and login to the web application.
-    2. User choose the encryption method and mode that they want to use.
-    3. User add, download, and delete their files.
-    4. Each file will be encrypted and decrypted using the method and mode that user choose.
-    5. Each process will require a password that user input.
+### File
 
-    ## Something To Note
+- Handled Filetype: .pdf, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .mp4
+- Maximum Filesize: 2 MB
+- In order to increase filesize, you can change the value of `upload_max_filesize` and `post_max_size` in `php.ini` file.
 
-    ### File
+### Password
 
-    -   Handled Filetype: .pdf, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .mp4
-    -   Maximum Filesize: 2 MB
-    -   In order to increase filesize, you can change the value of `upload_max_filesize` and `post_max_size` in `php.ini` file.
+- Password for each file is the same as the account password.
 
-    ### Password
+## Built With
 
-    -   Password for each file is the same as the account password.
+<!-- make it double columns, centered -->
 
-    ## Built With
+| :Frontend: | :Backend: | :Database: | :Server: | :Encryption: | :Encryption Mode: |
+| :--------: | :-------: | :--------: | :------: | :----------: | :---------------: |
+| Bootstrap  |  Laravel  |   MySQL    | Apache2  |     AES      |        CBC        |
+|   JQuery   |    PHP    |            |          |     DES      |        CFB        |
+| FontBunny  |           |            |          |     RC4      |        OFB        |
+|            |           |            |          |              |        CTR        |
 
-    <!-- make it double columns, centered -->
+## License
 
-    | :Frontend: | :Backend: | :Database: | :Server: | :Encryption: | :Encryption Mode: |
-    | :--------: | :-------: | :--------: | :------: | :----------: | :---------------: |
-    | Bootstrap  |  Laravel  |   MySQL    |  XAMPP   |     AES      |        CBC        |
-    |   JQuery   |    PHP    |            |          |     DES      |        CFB        |
-    | FontBunny  |           |            |          |     RC4      |        OFB        |
-    |            |           |            |          |              |        CTR        |
+The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-    ## License
-
-    The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-
-    ## Installation
+## Installation
 
 ```bash
 cp .env.example .env
@@ -70,7 +67,7 @@ npm install
 php artisan install
 ```
 
-    ## Running The Project
+## Running The Project
 
 ```bash
 php artisan serve
@@ -83,3 +80,5 @@ php artisan schedule:work
 ```bash
 php artisan dataset:seed
 ```
+
+> Note: please do this on a fresh database
