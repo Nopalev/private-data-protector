@@ -25,6 +25,7 @@ class Install extends Command
      */
     public function handle()
     {
+        $this->call('migrate');
         $this->call('key:generate');
         $this->call('app:key_generate');
         $this->call('storage:link');
