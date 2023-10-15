@@ -16,6 +16,7 @@
 - [Instalation](#installation)
 - [Run](#running-the-project)
 - [Seed](#seeding-datasets)
+- [Justification](#justification)
 
 ## About The Project
 
@@ -47,7 +48,7 @@ The method that we use to encrypt the file are AES, DES, and RC4. The mode that 
 
 <!-- make it double columns, centered -->
 
-| :Frontend: | :Backend: | :Database: | :Server: | :Encryption: | :Encryption Mode: |
+|  Frontend  |  Backend  |  Database  |  Server  |  Encryption  |  Encryption Mode  |
 | :--------: | :-------: | :--------: | :------: | :----------: | :---------------: |
 | Bootstrap  |  Laravel  |   MySQL    | Apache2  |     AES      |        CBC        |
 |   JQuery   |    PHP    |            |          |     DES      |        CFB        |
@@ -64,7 +65,7 @@ The Laravel framework is open-sourced software licensed under the [MIT license](
 cp .env.example .env
 composer install
 npm install
-php artisan install
+php artisan install # run this after setting up your database connection
 ```
 
 ## Running The Project
@@ -77,8 +78,49 @@ php artisan schedule:work
 
 ## Seeding Datasets
 
+Seed the database with provided datasets.
+
 ```bash
 php artisan dataset:seed
 ```
 
 > Note: please do this on a fresh database
+
+## Justification
+
+### What Are the Things We Considered As Private Data?
+
+We use Indonesian [UU No. 27 Tahun 2022](https://jdih.setkab.go.id/PUUdoc/176837/Salinan_UU_Nomor_27_Tahun_2022.pdf) as a referrence for what is considered as private data. From what are written in the lawbook, we categorize private data into two things: text-based private data (later will be called as biodata, consisting of name, gender, nationality, religion, and mariage status), and file-based private data (such as image of ID card, files containing health report, etc).
+
+We create a database scheme contains:
+
+- user (has one biodata, has many files)
+- biodata (belong to user)
+- file (belong to user)
+- public key (for generating keys and IVs)
+
+### Key and IV derivation
+
+We use user's password, combined with public keys stored in the database to create keys ans IVs that are unique to each users (as long as their passwords are unique). The drawback is, everytime user upload or download any kind of file, the user is required to insert their password, albeit this flow would let us derive unique key and IV but the generated key and IV would always be the same for each user (unless the user change their password).
+
+For this reason, we requiring each users to provide a minimal 8 characters long password, that has at minimum a number, a lowercase, and an uppercase letter in it for security purposes.
+
+#### Key
+
+We concatenate user's password (`P4ssw0Rd` would be `P4ssw0RdP4ssw0Rd`), use the first 16 characters, then for 4 rounds we:
+
+- XOR the concatenated password with 16 bytes long of public key
+- Shift the generated key leftward once (`P4ssw0RdP4ssw0Rd` would be `4ssw0RdP4ssw0RdP`)
+- For DES algorithm, we would use the first 8 bytes of the derived key
+
+#### IV
+
+We concatenate user's password (`P4ssw0Rd` would be `P4ssw0RdP4ssw0Rd`), use the last 16 characters, then for 4 rounds we:
+
+- XOR the concatenated password with 16 bytes long of public key
+- Shift the generated IV leftward once (`P4ssw0RdP4ssw0Rd` would be `4ssw0RdP4ssw0RdP`)
+- For DES algorithm, we would use the first 8 bytes of the derived IV
+
+### Analysis
+
+We use several API endpoints that retrieve's users biodata, and files (3 for each users). We create a seeder that seeds 12 users, each with different encryption method and mode, but same biodata and files for all 12 of them.
