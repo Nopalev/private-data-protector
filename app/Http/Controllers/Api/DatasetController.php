@@ -7,7 +7,7 @@ use App\Http\Controllers\EncryptionController;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class DatasetController extends Controller
+class  DatasetController extends Controller
 {
     public function index(){
         $users = User::all();
@@ -20,7 +20,7 @@ class DatasetController extends Controller
         $user = User::find($id);
         $biodata = $user->biodata;
         
-        $timestamp_start = time();
+        $timestamp_start = microtime(true);
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
         
         $biodata->name = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->name);
@@ -29,10 +29,10 @@ class DatasetController extends Controller
         $biodata->religion = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->religion);
         $biodata->marital_status = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->marital_status);
         
-        $timestamp_end = time();
+        $timestamp_end = microtime(true);
         $encryption_end = date('Y-m-d_H-i-s.u', $timestamp_end);
         
-        $duration = $timestamp_end - $timestamp_start;
+        $duration = round(($timestamp_end - $timestamp_start)*1000);
         
         $response = [
             'user' => $user,
@@ -50,7 +50,7 @@ class DatasetController extends Controller
         $user = User::find($id);
         $files = $user->files;
         
-        $timestamp_start = time();
+        $timestamp_start = microtime(true);
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
 
         foreach($files as $file){
@@ -62,10 +62,10 @@ class DatasetController extends Controller
             $decrypted = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $raw);
         }
 
-        $timestamp_end = time();
+        $timestamp_end = microtime(true);
         $encryption_end = date('Y-m-d_H-i-s.u', $timestamp_end);
 
-        $duration = $timestamp_end - $timestamp_start;
+        $duration = round(($timestamp_end - $timestamp_start)*1000);
 
         $response = [
             'user' => $user,
