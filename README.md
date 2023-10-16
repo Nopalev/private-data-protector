@@ -48,7 +48,7 @@ The method that we use to encrypt the file are AES, DES, and RC4. The mode that 
 
 <!-- make it double columns, centered -->
 
-|  Frontend  |  Backend  |  Database  |  Server  |  Encryption  |  Encryption Mode  |
+|  Frontend  |  Backend  |  Database  |  Server  |  Encryption (phpseclib)  |  Encryption Mode  |
 | :--------: | :-------: | :--------: | :------: | :----------: | :---------------: |
 | Bootstrap  |  Laravel  |   MySQL    | Apache2  |     AES      |        CBC        |
 |   JQuery   |    PHP    |            |          |     DES      |        CFB        |
@@ -124,3 +124,28 @@ We concatenate user's password (`P4ssw0Rd` would be `P4ssw0RdP4ssw0Rd`), use the
 ### Analysis
 
 We use several API endpoints that retrieve's users biodata, and files (3 for each users). We create a seeder that seeds 12 users, each with different encryption method and mode, but same biodata and files for all 12 of them.
+
+### Custom Commands
+
+We create several custom commands for tidying up our instalation and do several required jobs.
+
+#### `php artisan install`
+
+run several commands such as:
+
+- migration
+- generate application key
+- generate public key
+- symbolic link
+
+#### `php artisan temp:flush`
+
+In order to send download response with user's file, we decrypt the requested file, save in a temp directory, then sends the file. This command is used to remove those decrypted residual files. This command is automated every 10 seconds by running the `php artisan schedule:work` command.
+
+#### `php artisan app:key_generate`
+
+This command is used to generate application's public key used to derive user's key and IV.
+
+#### `php artisan dataset:seed`
+
+This command is used to seed the database with datasets used for analyze every combination of encryption methods and modes.
