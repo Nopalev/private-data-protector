@@ -29,10 +29,6 @@ Route::get('/', function () {
 
 Route::middleware('auth')->group(function(){
     Route::controller(AuthController::class)->group(function(){
-        Route::get('/login', 'login')->name('login');
-        Route::post('/login', 'authenticate')->name('login');
-        Route::get('/register', 'register')->name('register');
-        Route::post('/register', 'create')->name('register');
         Route::post('/logout', 'logout')->name('logout');
         Route::get('/password/change', 'edit')->name('password.change');
         Route::post('/password/change', 'update')->name('password.change');
@@ -65,6 +61,13 @@ Route::middleware('auth')->group(function(){
     Route::controller(EncryptionController::class)->group(function(){
         Route::get('/encryption/set', 'index')->name('encryption.set');
         Route::patch('/encryption/set', 'update')->name('encryption.set');
+    });
+
+    Route::controller(AuthController::class)->group(function(){
+        Route::get('/login', 'login')->name('login');
+        Route::post('/login', 'authenticate')->name('login');
+        Route::get('/register', 'register')->name('register');
+        Route::post('/register', 'create')->name('register');
     });
 });
 
