@@ -19,12 +19,12 @@ class DatasetController extends Controller
         $password = $request->header("php-auth-pw");
         $user = User::find($id);
         $biodata = $user->biodata;
-        
-        $entropyb = $decryptor->entropy($biodata->name);
-        $entropyp = $decryptor->entropy($password);
-
+    
         $timestamp_start = time();
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
+
+        $entropyb = $decryptor->entropy($biodata->name);
+        $entropyp = $decryptor->entropy($password);
         
         $biodata->name = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->name);
         $biodata->gender = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->gender);
@@ -42,8 +42,7 @@ class DatasetController extends Controller
             'start' => $encryption_start,
             'end' => $encryption_end,
             'duration' => $duration,
-            'entropyb' => $entropyb,
-            'entropyp' => $entropyp
+            // 'entropyb' => $entropyb
         ];
 
         return $response;
