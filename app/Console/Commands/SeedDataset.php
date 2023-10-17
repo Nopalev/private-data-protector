@@ -30,7 +30,6 @@ class SeedDataset extends Command
         Storage::copy('dataset/image/dataset.png', 'public/images/dataset.png');
         Storage::copy('dataset/video/dataset.mp4', 'public/videos/dataset.mp4');
 
-        $this->call('app:key_generate');
         $this->call('DB:seed');
 
         Storage::delete('public/documents/dataset.pdf');
