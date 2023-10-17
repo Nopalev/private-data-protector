@@ -9,24 +9,14 @@
 
 ## Table of Contents
 
--   [Information Security Project](#information-security-project)
-    -   [Table of Contents](#table-of-contents)
-    -   [About The Project](#about-the-project)
-    -   [The Flow](#the-flow)
-    -   [Something To Note](#something-to-note)
-        -   [File](#file)
-        -   [Password](#password)
-    -   [Built With](#built-with)
-    -   [License](#license)
-    -   [Installation](#installation)
-    -   [Running The Project](#running-the-project)
-    -   [Seeding Datasets](#seeding-datasets)
-    -   [Justification](#justification)
-        -   [What Are the Things We Considered As Private Data?](#what-are-the-things-we-considered-as-private-data)
-        -   [Key and IV derivation](#key-and-iv-derivation)
-            -   [Key](#key)
-            -   [IV](#iv)
-        -   [Analysis](#analysis)
+-   [About](#about-the-project)
+-   [Flow](#the-flow)
+-   [Note](#something-to-note)
+-   [Tech Stack](#built-with)
+-   [Instalation](#installation)
+-   [Run](#running-the-project)
+-   [Seed](#seeding-datasets)
+-   [Justification](#justification)
 
 ## About The Project
 
@@ -58,12 +48,12 @@ The method that we use to encrypt the file are AES, DES, and RC4. The mode that 
 
 <!-- make it double columns, centered -->
 
-| Frontend  | Backend | Database | Server  | Encryption | Encryption Mode |
-| :-------: | :-----: | :------: | :-----: | :--------: | :-------------: |
-| Bootstrap | Laravel |  MySQL   | Apache2 |    AES     |       CBC       |
-|  JQuery   |   PHP   |          |         |    DES     |       CFB       |
-| FontBunny |         |          |         |    RC4     |       OFB       |
-|           |         |          |         |            |       CTR       |
+| Frontend  | Backend | Database | Server  | Encryption (phpseclib) | Encryption Mode |
+| :-------: | :-----: | :------: | :-----: | :--------------------: | :-------------: |
+| Bootstrap | Laravel |  MySQL   | Apache2 |          AES           |       CBC       |
+|  JQuery   |   PHP   |          |         |          DES           |       CFB       |
+| FontBunny |         |          |         |          RC4           |       OFB       |
+|           |         |          |         |                        |       CTR       |
 
 ## License
 
@@ -111,7 +101,7 @@ We create a database scheme contains:
 
 ### Key and IV derivation
 
-We use user's password, combined with public keys stored in the database to create keys ans IVs that are unique to each users (as long as their passwords are unique). The drawback is, everytime user upload or download any kind of file, the user is required to insert their password, albeit this flow would let us derive unique key and IV but the generated key and IV would always be the same for each user (unless the user change their password).
+We use user's password, combined with public keys (different for each user) stored in the database to create keys and IVs that are unique to each users (as long as their passwords are unique). The drawback is, everytime user upload or download any kind of file, the user is required to insert their password, albeit this flow would let us derive unique key and IV but the generated key and IV would always be the same for each user (unless the user change their password).
 
 For this reason, we requiring each users to provide a minimal 8 characters long password, that has at minimum a number, a lowercase, and an uppercase letter in it for security purposes.
 
@@ -134,3 +124,23 @@ We concatenate user's password (`P4ssw0Rd` would be `P4ssw0RdP4ssw0Rd`), use the
 ### Analysis
 
 We use several API endpoints that retrieve's users biodata, and files (3 for each users). We create a seeder that seeds 12 users, each with different encryption method and mode, but same biodata and files for all 12 of them.
+
+### Custom Commands
+
+We create several custom commands for tidying up our instalation and do several required jobs.
+
+#### `php artisan install`
+
+run several commands such as:
+
+-   migration
+-   generate application key
+-   symbolic link
+
+#### `php artisan temp:flush`
+
+In order to send download response with user's file, we decrypt the requested file, save in a temp directory, then sends the file. This command is used to remove those decrypted residual files. This command is automated every 10 seconds by running the `php artisan schedule:work` command.
+
+#### `php artisan dataset:seed`
+
+This command is used to seed the database with datasets used for analyze every combination of encryption methods and modes.
