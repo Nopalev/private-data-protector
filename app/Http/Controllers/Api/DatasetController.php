@@ -23,11 +23,11 @@ class  DatasetController extends Controller
         $timestamp_start = microtime(true);
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
         
-        $biodata->name = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->name);
-        $biodata->gender = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->gender);
-        $biodata->nationality = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->nationality);
-        $biodata->religion = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->religion);
-        $biodata->marital_status = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $biodata->marital_status);
+        $biodata->name = $decryptor->factory_decrypt($user, $password, $biodata->name);
+        $biodata->gender = $decryptor->factory_decrypt($user, $password, $biodata->gender);
+        $biodata->nationality = $decryptor->factory_decrypt($user, $password, $biodata->nationality);
+        $biodata->religion = $decryptor->factory_decrypt($user, $password, $biodata->religion);
+        $biodata->marital_status = $decryptor->factory_decrypt($user, $password, $biodata->marital_status);
         
         $timestamp_end = microtime(true);
         $encryption_end = date('Y-m-d_H-i-s.u', $timestamp_end);
@@ -54,12 +54,12 @@ class  DatasetController extends Controller
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
 
         foreach($files as $file){
-            $file->filename = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $file->filename);
+            $file->filename = $decryptor->factory_decrypt($user, $password, $file->filename);
 
             $file_src = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'r');
             $raw = fread($file_src, filesize(public_path('storage/' . $file->filetype . 's/' . $file->filecode)));
             fclose($file_src);
-            $decrypted = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $raw);
+            $decrypted = $decryptor->factory_decrypt($user, $password, $raw);
         }
 
         $timestamp_end = microtime(true);

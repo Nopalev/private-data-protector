@@ -27,16 +27,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::controller(AuthController::class)->group(function(){
+    Route::get('/login', 'login')->name('login');
+    Route::post('/login', 'authenticate')->name('login');
+    Route::get('/register', 'register')->name('register');
+    Route::post('/register', 'create')->name('register');
+    Route::post('/logout', 'logout')->name('logout')->middleware('auth');
+    Route::get('/password/change', 'edit')->name('password.change')->middleware('auth');
+    Route::post('/password/change', 'update')->name('password.change')->middleware('auth');
+});
+
 Route::middleware('auth')->group(function(){
-    Route::controller(AuthController::class)->group(function(){
-        Route::get('/login', 'login')->name('login');
-        Route::post('/login', 'authenticate')->name('login');
-        Route::get('/register', 'register')->name('register');
-        Route::post('/register', 'create')->name('register');
-        Route::post('/logout', 'logout')->name('logout');
-        Route::get('/password/change', 'edit')->name('password.change');
-        Route::post('/password/change', 'update')->name('password.change');
-    });
     
     Route::controller(UserController::class)->group(function(){
         Route::get('/profile', 'index')->name('profile');

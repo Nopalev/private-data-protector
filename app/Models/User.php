@@ -52,6 +52,11 @@ class User extends Authenticatable
         return $this->hasOne(Biodata::class);
     }
 
+    public function publicKey(): HasOne
+    {
+        return $this->hasOne(PublicKey::class);
+    }
+
     public function files(): HasMany
     {
         return $this->hasMany(File::class);
