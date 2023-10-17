@@ -135,16 +135,11 @@ run several commands such as:
 
 - migration
 - generate application key
-- generate public key
 - symbolic link
 
 #### `php artisan temp:flush`
 
 In order to send download response with user's file, we decrypt the requested file, save in a temp directory, then sends the file. This command is used to remove those decrypted residual files. This command is automated every 10 seconds by running the `php artisan schedule:work` command.
-
-#### `php artisan app:key_generate`
-
-This command is used to generate application's public key used to derive user's key and IV.
 
 #### `php artisan dataset:seed`
 
