@@ -20,6 +20,9 @@ class DatasetController extends Controller
         $user = User::find($id);
         $biodata = $user->biodata;
         
+        $entropyb = $decryptor->entropy($biodata->name);
+        $entropyp = $decryptor->entropy($password);
+
         $timestamp_start = time();
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
         
@@ -33,12 +36,14 @@ class DatasetController extends Controller
         $encryption_end = date('Y-m-d_H-i-s.u', $timestamp_end);
         
         $duration = $timestamp_end - $timestamp_start;
-        
+
         $response = [
             'user' => $user,
             'start' => $encryption_start,
             'end' => $encryption_end,
-            'duration' => $duration
+            'duration' => $duration,
+            'entropyb' => $entropyb,
+            'entropyp' => $entropyp
         ];
 
         return $response;
@@ -50,6 +55,7 @@ class DatasetController extends Controller
         $user = User::find($id);
         $files = $user->files;
         
+        
         $timestamp_start = time();
         $encryption_start = date('Y-m-d_H-i-s.u', $timestamp_start);
 
@@ -59,6 +65,7 @@ class DatasetController extends Controller
             $file_src = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'r');
             $raw = fread($file_src, filesize(public_path('storage/' . $file->filetype . 's/' . $file->filecode)));
             fclose($file_src);
+            $ent = $decryptor->entropy($raw);
             $decrypted = $decryptor->factory_decrypt($user->encryption_method, $user->encryption_mode, $password, $raw);
         }
 
@@ -71,7 +78,8 @@ class DatasetController extends Controller
             'user' => $user,
             'start' => $encryption_start,
             'end' => $encryption_end,
-            'duration' => $duration
+            'duration' => $duration,
+            'entropy' => $ent
         ];
 
         return $response;
