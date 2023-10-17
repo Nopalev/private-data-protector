@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PublicKey;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,17 +12,17 @@ use phpseclib3\Crypt\RC4;
 
 class EncryptionController extends Controller
 {
-    private function getPublicKey(String $type)
+    private function getPublicKey(String $id, String $type)
     {
-        $appkey = PublicKey::all()->last();
+        $appkey = User::find($id)->publicKey;
         return $appkey[$type];
     }
 
-    private function derive_key(String $password)
+    private function derive_key(String $id, String $password)
     {
         $password .= $password;
         $password = substr($password, 0, 16);
-        $appkey = $this->getPublicKey('public_key');
+        $appkey = $this->getPublicKey($id, 'public_key');
         for ($i = 0; $i < 4; $i++) {
             for ($j = 0; $j < 16; $j++) {
                 $password[$j] =  $password[$j] ^ $appkey[$j];
@@ -33,11 +32,11 @@ class EncryptionController extends Controller
         return $password;
     }
 
-    private function derive_IV(String $password)
+    private function derive_IV(String $id, String $password)
     {
         $password .= $password;
         $password = substr($password, strlen($password) - 16, strlen($password));
-        $appkey = $this->getPublicKey('public_IV');
+        $appkey = $this->getPublicKey($id, 'public_IV');
         for ($i = 0; $i < 4; $i++) {
             for ($j = 0; $j < 16; $j++) {
                 $password[$j] =  $password[$j] ^ $appkey[$j];
@@ -53,44 +52,45 @@ class EncryptionController extends Controller
         String $old_mode,
         String $new_mode,
         String $password
-    ) {
+        ) {
+        $user_id = Auth::user()->id;
+        $user = User::find($user_id);
+
         $old = $new = null;
         if ($old_method === 'AES') {
             $old = new AES(strtolower($old_mode));
-            $old->setKey($this->derive_key($password));
+            $old->setKey($this->derive_key($user_id, $password));
             if ($old->usesIV()) {
-                $old->setIV($this->derive_IV($password));
+                $old->setIV($this->derive_IV($user_id, $password));
             }
         } elseif ($old_method === 'DES') {
             $old = new DES(strtolower($old_mode));
-            $old->setKey(substr($this->derive_key($password), 0, 8));
+            $old->setKey(substr($this->derive_key($user_id, $password), 0, 8));
             if ($old->usesIV()) {
-                $old->setIV(substr($this->derive_IV($password), 0, 8));
+                $old->setIV(substr($this->derive_IV($user_id, $password), 0, 8));
             }
         } elseif ($old_method === 'RC4') {
             $old = new RC4(strtolower($old_mode));
-            $old->setKey($this->derive_key($password));
+            $old->setKey($this->derive_key($user_id, $password));
         }
 
         if ($new_method === 'AES') {
             $new = new AES(strtolower($new_mode));
-            $new->setKey($this->derive_key($password));
+            $new->setKey($this->derive_key($user_id, $password));
             if ($new->usesIV()) {
-                $new->setIV($this->derive_IV($password));
+                $new->setIV($this->derive_IV($user_id, $password));
             }
         } elseif ($new_method === 'DES') {
             $new = new DES(strtolower($new_mode));
-            $new->setKey(substr($this->derive_key($password), 0, 8));
+            $new->setKey(substr($this->derive_key($user_id, $password), 0, 8));
             if ($new->usesIV()) {
-                $new->setIV(substr($this->derive_IV($password), 0, 8));
+                $new->setIV(substr($this->derive_IV($user_id, $password), 0, 8));
             }
         } elseif ($new_method === 'RC4') {
             $new = new RC4(strtolower($new_mode));
-            $new->setKey($this->derive_key($password));
+            $new->setKey($this->derive_key($user_id, $password));
         }
 
-        $user_id = Auth::user()->id;
-        $user = User::find($user_id);
         if (!is_null($user->biodata)) {
             $biodata = $user->biodata;
 
@@ -141,9 +141,9 @@ class EncryptionController extends Controller
 
         $user_id = Auth::user()->id;
         $user = User::find($user_id);
-        $set = false;
+        $set = 'false';
         if (!(is_null($user->encryption_method) && is_null($user->encryption_mode))) {
-            $set = true;
+            $set = 'true';
         }
 
         return view('encryption.form', [
@@ -155,7 +155,15 @@ class EncryptionController extends Controller
 
     public function update(Request $request)
     {
-        if (Hash::check($request->password, Auth::user()->password)) {
+        if($request->set == 'false'){
+            $user = User::find(Auth::user()->id);
+            $user->encryption_method = $request->method;
+            $user->encryption_mode = $request->mode;
+            $user->save();
+            return redirect('home')->with('status', 'Encryption setting has been updated');
+        }
+
+        else if (Hash::check($request->password, Auth::user()->password)) {
             $user = User::find(Auth::user()->id);
             $this->changeEncryptionMethod($user->encryption_method, $request->method, $user->encryption_mode, $request->mode, $request->password);
             $user->encryption_method = $request->method;
@@ -163,6 +171,7 @@ class EncryptionController extends Controller
             $user->save();
             return redirect('home')->with('status', 'Encryption setting has been updated');
         }
+
         return redirect()->back()->with('alert', 'The provided password did not match our records.');
     }
 
@@ -171,21 +180,21 @@ class EncryptionController extends Controller
         $user = User::find(Auth::user()->id);
         if ($user->encryption_method === 'AES') {
             $aes = new AES(strtolower($user->encryption_mode));
-            $aes->setKey($this->derive_key($password));
+            $aes->setKey($this->derive_key($user->id, $password));
             if ($aes->usesIV()) {
-                $aes->setIV($this->derive_IV($password));
+                $aes->setIV($this->derive_IV($user->id, $password));
             }
             return $aes->encrypt($text);
         } elseif ($user->encryption_method === 'DES') {
             $des = new DES(strtolower($user->encryption_mode));
-            $des->setKey(substr($this->derive_key($password), 0, 8));
+            $des->setKey(substr($this->derive_key($user->id, $password), 0, 8));
             if ($des->usesIV()) {
-                $des->setIV(substr($this->derive_IV($password), 0, 8));
+                $des->setIV(substr($this->derive_IV($user->id, $password), 0, 8));
             }
             return $des->encrypt($text);
         } elseif ($user->encryption_method === 'RC4') {
             $rc4 = new RC4(strtolower($user->encryption_mode));
-            $rc4->setKey($this->derive_key($password));
+            $rc4->setKey($this->derive_key($user->id, $password));
             return $rc4->encrypt($text);
         }
     }
@@ -195,21 +204,21 @@ class EncryptionController extends Controller
         $user = User::find(Auth::user()->id);
         if ($user->encryption_method === 'AES') {
             $aes = new AES(strtolower($user->encryption_mode));
-            $aes->setKey($this->derive_key($password));
+            $aes->setKey($this->derive_key($user->id, $password));
             if ($aes->usesIV()) {
-                $aes->setIV($this->derive_IV($password));
+                $aes->setIV($this->derive_IV($user->id, $password));
             }
             return $aes->decrypt($text);
         } elseif ($user->encryption_method === 'DES') {
             $des = new DES(strtolower($user->encryption_mode));
-            $des->setKey(substr($this->derive_key($password), 0, 8));
+            $des->setKey(substr($this->derive_key($user->id, $password), 0, 8));
             if ($des->usesIV()) {
-                $des->setIV(substr($this->derive_IV($password), 0, 8));
+                $des->setIV(substr($this->derive_IV($user->id, $password), 0, 8));
             }
             return $des->decrypt($text);
         } elseif ($user->encryption_method === 'RC4') {
             $rc4 = new RC4(strtolower($user->encryption_mode));
-            $rc4->setKey($this->derive_key($password));
+            $rc4->setKey($this->derive_key($user->id, $password));
             return $rc4->decrypt($text);
         }
     }
@@ -252,48 +261,54 @@ class EncryptionController extends Controller
         }
     }
 
-    public function factory_encrypt(String $encryption_method, String $encryption_mode, String $password, $text)
+    public function factory_encrypt(User $user, String $password, $text)
     {
+        $encryption_method = $user->encryption_method;
+        $encryption_mode = $user->encryption_mode;
+
         if ($encryption_method === 'AES') {
             $aes = new AES(strtolower($encryption_mode));
-            $aes->setKey($this->derive_key($password));
+            $aes->setKey($this->derive_key($user->id, $password));
             if ($aes->usesIV()) {
-                $aes->setIV($this->derive_IV($password));
+                $aes->setIV($this->derive_IV($user->id, $password));
             }
             return $aes->encrypt($text);
         } elseif ($encryption_method === 'DES') {
             $des = new DES(strtolower($encryption_mode));
-            $des->setKey(substr($this->derive_key($password), 0, 8));
+            $des->setKey(substr($this->derive_key($user->id, $password), 0, 8));
             if ($des->usesIV()) {
-                $des->setIV(substr($this->derive_IV($password), 0, 8));
+                $des->setIV(substr($this->derive_IV($user->id, $password), 0, 8));
             }
             return $des->encrypt($text);
         } elseif ($encryption_method === 'RC4') {
             $rc4 = new RC4(strtolower($encryption_mode));
-            $rc4->setKey($this->derive_key($password));
+            $rc4->setKey($this->derive_key($user->id, $password));
             return $rc4->encrypt($text);
         }
     }
 
-    public function factory_decrypt(String $encryption_method, String $encryption_mode, String $password, $text)
+    public function factory_decrypt(User $user, String $password, $text)
     {
+        $encryption_method = $user->encryption_method;
+        $encryption_mode = $user->encryption_mode;
+
         if ($encryption_method === 'AES') {
             $aes = new AES(strtolower($encryption_mode));
-            $aes->setKey($this->derive_key($password));
+            $aes->setKey($this->derive_key($user->id, $password));
             if ($aes->usesIV()) {
-                $aes->setIV($this->derive_IV($password));
+                $aes->setIV($this->derive_IV($user->id, $password));
             }
             return $aes->decrypt($text);
         } elseif ($encryption_method === 'DES') {
             $des = new DES(strtolower($encryption_mode));
-            $des->setKey(substr($this->derive_key($password), 0, 8));
+            $des->setKey(substr($this->derive_key($user->id, $password), 0, 8));
             if ($des->usesIV()) {
-                $des->setIV(substr($this->derive_IV($password), 0, 8));
+                $des->setIV(substr($this->derive_IV($user->id, $password), 0, 8));
             }
             return $des->decrypt($text);
         } elseif ($encryption_method === 'RC4') {
             $rc4 = new RC4(strtolower($encryption_mode));
-            $rc4->setKey($this->derive_key($password));
+            $rc4->setKey($this->derive_key($user->id, $password));
             return $rc4->decrypt($text);
         }
     }

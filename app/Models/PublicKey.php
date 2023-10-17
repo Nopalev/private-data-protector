@@ -4,10 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PublicKey extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['public_key', 'public_IV'];
+    protected $fillable = ['user_id', 'public_key', 'public_IV'];
+
+    public function user(): BelongsTo{
+        return $this->belongsTo(User::class);
+    }
 }

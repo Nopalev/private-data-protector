@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PublicKey;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
@@ -47,7 +49,13 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
 
-        User::create($user);
+        $registered_user = User::create($user);
+        $registered_user->publicKey()->create(
+            [
+                'public_key' => Str::random(16),
+                'public_IV' => Str::random(16)
+            ]
+        );
 
         if (Auth::attempt($user)) {
             $request->session()->regenerate();
@@ -78,7 +86,7 @@ class AuthController extends Controller
         $request->validate([
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ]);
-        
+
         if (Hash::check($request->old_password, $user->password)) {
             $encryptor = new EncryptionController;
             $encryptor->changePassword($request->old_password, $request->password);
