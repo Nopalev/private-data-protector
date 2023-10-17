@@ -38,7 +38,6 @@ Route::controller(AuthController::class)->group(function(){
 });
 
 Route::middleware('auth')->group(function(){
-    
     Route::controller(UserController::class)->group(function(){
         Route::get('/profile', 'index')->name('profile');
         Route::get('/profile/edit', 'edit')->name('profile.edit');
