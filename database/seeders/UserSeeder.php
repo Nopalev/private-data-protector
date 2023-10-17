@@ -46,18 +46,18 @@ class UserSeeder extends Seeder
 
                 Biodata::create([
                     'user_id' => User::count(),
-                    'name' => $encryptor->factory_encrypt($user, '1N1password', 'Name'),
-                    'gender' => $encryptor->factory_encrypt($user, '1N1password', 'Male'),
-                    'nationality' => $encryptor->factory_encrypt($user, '1N1password', 'Indonesia'),
-                    'religion' => $encryptor->factory_encrypt($user, '1N1password', 'Islam'),
-                    'marital_status' => $encryptor->factory_encrypt($user, '1N1password', 'Single'),
+                    'name' => $encryptor->factory_encrypt($user[0], '1N1password', 'Name'),
+                    'gender' => $encryptor->factory_encrypt($user[0], '1N1password', 'Male'),
+                    'nationality' => $encryptor->factory_encrypt($user[0], '1N1password', 'Indonesia'),
+                    'religion' => $encryptor->factory_encrypt($user[0], '1N1password', 'Islam'),
+                    'marital_status' => $encryptor->factory_encrypt($user[0], '1N1password', 'Single'),
                 ]);
 
                 $filename = $encryption_method[$i] . '_' . $encryption_mode[$j] . '_' . 'dataset.pdf';
 
                 File::create([
                     'user_id' => User::count(),
-                    'filename' => $encryptor->factory_encrypt($user, '1N1password', $filename),
+                    'filename' => $encryptor->factory_encrypt($user[0], '1N1password', $filename),
                     'filecode' => $filename,
                     'filetype' => 'document',
                     'mime' => 'application/pdf'
@@ -68,14 +68,14 @@ class UserSeeder extends Seeder
                 fclose($file_src);
 
                 $file_dest = fopen(public_path('storage/documents/' . $filename), 'w+');
-                fwrite($file_dest, $encryptor->factory_encrypt($user, '1N1password', $raw));
+                fwrite($file_dest, $encryptor->factory_encrypt($user[0], '1N1password', $raw));
                 fclose($file_dest);
 
                 $filename = $encryption_method[$i] . '_' . $encryption_mode[$j] . '_' . 'dataset.png';
 
                 File::create([
                     'user_id' => User::count(),
-                    'filename' => $encryptor->factory_encrypt($user, '1N1password', $filename),
+                    'filename' => $encryptor->factory_encrypt($user[0], '1N1password', $filename),
                     'filecode' => $filename,
                     'filetype' => 'image',
                     'mime' => 'image/png'
@@ -86,14 +86,14 @@ class UserSeeder extends Seeder
                 fclose($file_src);
 
                 $file_dest = fopen(public_path('storage/images/' . $filename), 'w+');
-                fwrite($file_dest, $encryptor->factory_encrypt($user, '1N1password', $raw));
+                fwrite($file_dest, $encryptor->factory_encrypt($user[0], '1N1password', $raw));
                 fclose($file_dest);
 
                 $filename = $encryption_method[$i] . '_' . $encryption_mode[$j] . '_' . 'dataset.mp4';
 
                 File::create([
                     'user_id' => User::count(),
-                    'filename' => $encryptor->factory_encrypt($user, '1N1password', $filename),
+                    'filename' => $encryptor->factory_encrypt($user[0], '1N1password', $filename),
                     'filecode' => $filename,
                     'filetype' => 'video',
                     'mime' => 'video/mp4'
@@ -104,7 +104,7 @@ class UserSeeder extends Seeder
                 fclose($file_src);
 
                 $file_dest = fopen(public_path('storage/videos/' . $filename), 'w+');
-                fwrite($file_dest, $encryptor->factory_encrypt($user, '1N1password', $raw));
+                fwrite($file_dest, $encryptor->factory_encrypt($user[0], '1N1password', $raw));
                 fclose($file_dest);
             }
         }
