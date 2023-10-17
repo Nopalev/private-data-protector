@@ -101,7 +101,7 @@ We create a database scheme contains:
 
 ### Key and IV derivation
 
-We use user's password, combined with public keys stored in the database to create keys ans IVs that are unique to each users (as long as their passwords are unique). The drawback is, everytime user upload or download any kind of file, the user is required to insert their password, albeit this flow would let us derive unique key and IV but the generated key and IV would always be the same for each user (unless the user change their password).
+We use user's password, combined with public keys (different for each user) stored in the database to create keys and IVs that are unique to each users (as long as their passwords are unique). The drawback is, everytime user upload or download any kind of file, the user is required to insert their password, albeit this flow would let us derive unique key and IV but the generated key and IV would always be the same for each user (unless the user change their password).
 
 For this reason, we requiring each users to provide a minimal 8 characters long password, that has at minimum a number, a lowercase, and an uppercase letter in it for security purposes.
 
