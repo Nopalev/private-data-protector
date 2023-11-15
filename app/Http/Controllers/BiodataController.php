@@ -6,42 +6,37 @@ use App\Models\Biodata;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use phpseclib3\Crypt\RC4;
 
 class BiodataController extends Controller
 {
     public function index()
     {
-        $biodata = User::find(Auth::user()->id)->biodata;
+        $user = User::find(Auth::user()->id);
+        $biodata = $user->biodata;
         if (!$biodata) {
             return view('biodata.form');
         }
 
-        return view('biodata.password');
-    }
+        $decryptor = new RC4();
+        $decryptor->setKey($user->userKey->user_key);
 
-    public function show(Request $request)
-    {
-        if (Hash::check($request->password, Auth::user()->password)) {
-            $decryptor = new EncryptionController;
-            $biodata = User::find(Auth::user()->id)->biodata;
+        $biodata->name = $decryptor->decrypt($biodata->name);
+        $biodata->gender = $decryptor->decrypt($biodata->gender);
+        $biodata->nationality = $decryptor->decrypt($biodata->nationality);
+        $biodata->religion = $decryptor->decrypt($biodata->religion);
+        $biodata->marital_status = $decryptor->decrypt($biodata->marital_status);
 
-            $biodata->name = $decryptor->decrypt($request->password, $biodata->name);
-            $biodata->gender = $decryptor->decrypt($request->password, $biodata->gender);
-            $biodata->nationality = $decryptor->decrypt($request->password, $biodata->nationality);
-            $biodata->religion = $decryptor->decrypt($request->password, $biodata->religion);
-            $biodata->marital_status = $decryptor->decrypt($request->password, $biodata->marital_status);
-
-            return view('biodata.show', [
-                'biodata' => $biodata
-            ]);
-        }
-        return redirect()->back()->with('alert', 'The provided password did not match our records.');
+        return view('biodata.show', [
+            'biodata' => $biodata
+        ]);
     }
 
     public function create(Request $request)
     {
-        $encryptor = new EncryptionController;
+        $encryptor = new RC4();
+        $encryptor->setKey(Auth::user()->userKey->user_key);
+
         $request->validate([
             'name' => 'required',
             'nationality' => 'required',
@@ -49,11 +44,11 @@ class BiodataController extends Controller
 
         $biodata = [
             'user_id' => Auth::user()->id,
-            'name' => $encryptor->encrypt($request->password, $request->name),
-            'gender' => $encryptor->encrypt($request->password, $request->gender),
-            'nationality' => $encryptor->encrypt($request->password, $request->nationality),
-            'religion' => $encryptor->encrypt($request->password, $request->religion),
-            'marital_status' => $encryptor->encrypt($request->password, $request->marital_status),
+            'name' => $encryptor->encrypt($request->name),
+            'gender' => $encryptor->encrypt($request->gender),
+            'nationality' => $encryptor->encrypt($request->nationality),
+            'religion' => $encryptor->encrypt($request->religion),
+            'marital_status' => $encryptor->encrypt($request->marital_status),
         ];
 
         $biodata = Biodata::create($biodata);
@@ -76,27 +71,26 @@ class BiodataController extends Controller
 
     public function update(Request $request)
     {
-        if (Hash::check($request->password, Auth::user()->password)) {
-            $encryptor = new EncryptionController;
-            $request->validate([
-                'name' => 'required',
-                'nationality' => 'required',
-            ]);
+        $encryptor = new RC4();
+        $encryptor->setKey(Auth::user()->userKey->user_key);
 
-            $biodata = User::find(Auth::user()->id)->biodata;
+        $request->validate([
+            'name' => 'required',
+            'nationality' => 'required',
+        ]);
 
-            $new_biodata = [
-                'name' => $encryptor->encrypt($request->password, $request->name),
-                'gender' => $encryptor->encrypt($request->password, $request->gender),
-                'nationality' => $encryptor->encrypt($request->password, $request->nationality),
-                'religion' => $encryptor->encrypt($request->password, $request->religion),
-                'marital_status' => $encryptor->encrypt($request->password, $request->marital_status),
-            ];
+        $biodata = User::find(Auth::user()->id)->biodata;
 
-            $biodata->update($new_biodata);
+        $new_biodata = [
+            'name' => $encryptor->encrypt($request->name),
+            'gender' => $encryptor->encrypt($request->gender),
+            'nationality' => $encryptor->encrypt($request->nationality),
+            'religion' => $encryptor->encrypt($request->religion),
+            'marital_status' => $encryptor->encrypt($request->marital_status),
+        ];
 
-            return redirect('home');
-        }
-        return redirect()->back()->with('alert', 'The provided password did not match our records.');
+        $biodata->update($new_biodata);
+
+        return redirect('home');
     }
 }
