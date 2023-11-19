@@ -34,6 +34,10 @@
                                 <p class="alert alert-danger">{{ Session::get('alert') }}</p>
                                 @endif
                                 <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                                @if(Session::has('alert'))
+                                <p class="alert alert-danger">{{ Session::get('alert') }}</p>
+                                @endif
+                                <input id="keyseed" type="keyseed" class="form-control">
                             </div>
                         </div>
 
