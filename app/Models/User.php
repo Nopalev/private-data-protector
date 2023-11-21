@@ -61,4 +61,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(File::class);
     }
+
+    public function requestKeyOwner(): HasMany
+    {
+        return $this->hasMany(RequestKey::class, 'user_id_owner');
+    }
+
+    public function requestKeyReq(): HasMany
+    {
+        return $this->hasMany(RequestKey::class, 'user_id_req');
+    }
 }
