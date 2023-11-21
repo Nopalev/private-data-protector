@@ -54,10 +54,6 @@
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/home">{{ Auth::user()->username }}</a>
                         </li>
-                        
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/pool">{{ __('Pool') }}</a>
-                        </li>
 
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/profile">{{ __('Profile') }}</a>
@@ -65,6 +61,10 @@
 
                         <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="{{ route('biodata') }}">{{ __('Biodata') }}</a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/request">{{ __('Requests') }}</a>
                         </li>
 
                         <li class="nav-item">

@@ -20,4 +20,9 @@ class RequestKey extends Model
     {
         return $this->belongsTo(User::class, 'user_id_req');
     }
+
+    public function file()
+    {
+        return $this->belongsTo(File::class, 'file_id');
+    }
 }
