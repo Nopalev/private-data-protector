@@ -70,7 +70,9 @@ Route::middleware('auth')->group(function(){
     });
 
     Route::controller(RequestKeyController::class)->group(function(){
-        Route::post('/requestKey/create', 'create')->name('requestKey.create');
+        Route::get('/request', 'index')->name('requestKey.index');
+        Route::post('/request/create', 'create')->name('requestKey.create');
+        Route::post('/request/update', 'update')->name('requestKey.update');
     });
 
     //Pool Controller filled with file from every user, can only be opened by inserting assymetric key
