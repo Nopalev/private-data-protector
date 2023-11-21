@@ -38,7 +38,8 @@ Route::controller(AuthController::class)->group(function(){
 
 Route::middleware('auth')->group(function(){
     Route::controller(UserController::class)->group(function(){
-        Route::get('/profile', 'index')->name('profile');
+        Route::get('/home', 'index')->name('home');
+        Route::get('/profile', 'profile')->name('profile');
         Route::get('/profile/edit', 'edit')->name('profile.edit');
         Route::put('/profile', 'update')->name('profile.update');
     });
@@ -52,7 +53,6 @@ Route::middleware('auth')->group(function(){
     });
     
     Route::controller(FileController::class)->group(function(){
-        Route::get('/home', 'index')->name('home');
         Route::get('/file/add', 'form')->name('file.add');
         Route::post('/file', 'create')->name('file.save');
 
