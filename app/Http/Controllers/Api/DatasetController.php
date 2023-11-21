@@ -59,7 +59,6 @@ class  DatasetController extends Controller
             $file_src = fopen(public_path('storage/' . $file->filetype . 's/' . $file->filecode), 'r');
             $raw = fread($file_src, filesize(public_path('storage/' . $file->filetype . 's/' . $file->filecode)));
             fclose($file_src);
-            $decrypted = $decryptor->factory_decrypt($user, $password, $raw);
         }
 
         $timestamp_end = microtime(true);

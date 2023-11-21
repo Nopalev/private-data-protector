@@ -5,7 +5,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card">
-                <div class="card-header">{{ __('Uploaded Files') }}</div>
+                <div class="card-header">{{ __('List User and Files') }}</div>
 
                 <div class="card-body">
                     @if(Session::has('alert'))
@@ -19,24 +19,39 @@
                     </div>
                     @else
                     <ul class="list-group list-group-flush">
-                        @foreach($files as $file)
+                        @foreach($users as $user)
                         <li class="list-group-item">
                             <div class="row mb-3">
-                                <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $file->filetype }}</span>
+                                <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $user->username }}</span>
 
-                                <div class="col-md-6">
-                                    <button type="button" class="btn btn-primary">
-                                        <a class="nav-link active" aria-current="page" href="{{ route('file.show', $file->id) }}">
-                                            {{ __('Details') }}
-                                        </a>
-                                    </button>
-                                </div>
+                                @foreach($user->files as $item)
+                                <li class="list-group-item">
+                                    <div class="row mb-3">
+                                        <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $item->filetype }}</span>
+                                        <div class="col-md-6">
+                                            @if($user->id == $isMe->id)
+                                            <button type="button" class="btn btn-primary">
+                                                <a class="nav-link active" aria-current="page" href="{{ route('file.show', $item->id) }}">
+                                                    {{ __('Details') }}
+                                                </a>
+                                            </button>
+                                            @else
+                                            <button type="button" class="btn btn-success">
+                                                <a class="nav-link active" aria-current="page" href="#">
+                                                    {{ __('Request') }}
+                                                </a>
+                                            </button>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </li>
+                                @endforeach
                             </div>
                         </li>
                         @endforeach
                     </ul>
                     @endif
-                    <div class="col-md-8 offset-md-4">
+                    <div class="d-flex justify-content-end my-2">
                         <button type="button" class="btn btn-primary">
                             <a class="nav-link active" aria-current="page" href="{{ route('file.add') }}">
                                 {{ __('Add A File') }}

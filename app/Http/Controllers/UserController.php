@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\File;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -9,6 +10,14 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
     public function index()
+    {
+        $users = User::all();
+        $isMe = User::find(Auth::user()->id);
+
+        return view('home', compact('users', 'isMe'));
+    }
+    
+    public function profile()
     {
         $profile = User::find(Auth::user()->id);
 
