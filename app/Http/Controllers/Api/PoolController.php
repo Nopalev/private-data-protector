@@ -14,9 +14,10 @@ class PoolController extends Controller
         $files = File::all(); // Assuming you have a File model and a files table
 
         // Return the files as a response
-        return response()->json($files); // Return as JSON response
+        // dd($files); // Dump and die
+
         // or
-        // return view('files.index', ['files' => $files]); // Return as a view
+        return view('pool.index', ['files' => $files]); // Return as a view
     }
 
     // ...

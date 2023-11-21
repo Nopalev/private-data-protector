@@ -69,11 +69,7 @@ Route::middleware('auth')->group(function(){
 
     //Pool Controller filled with file from every user, can only be opened by inserting assymetric key
     Route::controller(PoolController::class)->group(function(){
-        Route::get('/pool', 'index')->name('pool');
-        Route::get('/pool/{id}/password', 'password_confirmation')->name('pool.password')->middleware(Authorize::class);
-        Route::get('/pool/{id}', 'show')->name('pool.show')->middleware(Authorize::class);
-        Route::get('/pool/{id}/download', 'download')->name('pool.download')->middleware(Authorize::class);
-        Route::post('/pool/{id}/download', 'download')->name('pool.download')->middleware(Authorize::class);
+        Route::get('/pool', 'showFiles')->name('pool.index');
     });
     
 });
