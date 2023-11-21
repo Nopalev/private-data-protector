@@ -67,5 +67,11 @@ Route::middleware('auth')->group(function(){
         Route::get('/encryption/set', 'index')->name('encryption.set');
         Route::patch('/encryption/set', 'update')->name('encryption.set');
     });
+
+    //Pool Controller filled with file from every user, can only be opened by inserting assymetric key
+    Route::controller(PoolController::class)->group(function(){
+        Route::get('/pool', 'showFiles')->name('pool.index');
+    });
+    
 });
 

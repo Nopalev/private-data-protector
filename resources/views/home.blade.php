@@ -25,7 +25,7 @@
                                 <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $user->username }}</span>
 
                                 @foreach($user->files as $item)
-                                <li class="list-group-item">
+                                <ul class="list-group-item">
                                     <div class="row mb-3">
                                         <span for="gender" class="col-md-4 col-form-span text-md-end">{{ $item->filetype }}</span>
                                         <div class="col-md-6">
@@ -44,20 +44,20 @@
                                             @endif
                                         </div>
                                     </div>
-                                </li>
+                                </ul>
                                 @endforeach
                             </div>
                         </li>
                         @endforeach
+                        <div class="d-flex justify-content-end my-2">
+                            <button type="button" class="btn btn-primary">
+                                <a class="nav-link active" aria-current="page" href="{{ route('file.add') }}">
+                                    {{ __('Add A File') }}
+                                </a>
+                            </button>
+                        </div>
                     </ul>
                     @endif
-                    <div class="d-flex justify-content-end my-2">
-                        <button type="button" class="btn btn-primary">
-                            <a class="nav-link active" aria-current="page" href="{{ route('file.add') }}">
-                                {{ __('Add A File') }}
-                            </a>
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

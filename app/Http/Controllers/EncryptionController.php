@@ -187,4 +187,27 @@ class EncryptionController extends Controller
             return $rc4->decrypt($text);
         }
     }
+
+    public function entropy(String $text)
+    {
+        $totalChars = strlen($text);
+        $entropy = 0;
+        $charCount = [];
+
+        // Count the frequency of each character
+        for ($i = 0; $i < $totalChars; $i++) {
+            $char = $text[$i];
+            if (!isset($charCount[$char])) {
+                $charCount[$char] = 0;
+            }
+            $charCount[$char]++;
+        }
+
+        // Calculate the entropy
+        foreach ($charCount as $char => $count) {
+            $probability = $count / $totalChars;
+            $entropy -= $probability * log($probability, 2);
+        }
+        return $entropy;
+    }
 }

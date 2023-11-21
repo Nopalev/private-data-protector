@@ -56,6 +56,10 @@
                         </li>
                         
                         <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="/pool">{{ __('Pool') }}</a>
+                        </li>
+
+                        <li class="nav-item">
                             <a class="nav-link active" aria-current="page" href="/profile">{{ __('Profile') }}</a>
                         </li>
 
