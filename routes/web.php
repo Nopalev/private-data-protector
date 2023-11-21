@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BiodataController;
 use App\Http\Controllers\EncryptionController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\RequestKeyController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\Authorize;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,10 @@ Route::middleware('auth')->group(function(){
     Route::controller(EncryptionController::class)->group(function(){
         Route::get('/encryption/set', 'index')->name('encryption.set');
         Route::patch('/encryption/set', 'update')->name('encryption.set');
+    });
+
+    Route::controller(RequestKeyController::class)->group(function(){
+        Route::post('/requestKey/create', 'create')->name('requestKey.create');
     });
 
     //Pool Controller filled with file from every user, can only be opened by inserting assymetric key

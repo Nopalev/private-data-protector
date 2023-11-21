@@ -9,9 +9,14 @@
 
                 <div class="card-body">
                     @if(Session::has('alert'))
-                    <p class="alert alert-danger">{{ Session::get('alert') }}</p>
+                        <p class="alert alert-danger">{{ Session::get('alert') }}</p>
                     @elseif(Session::has('status'))
-                    <p class="alert alert-info">{{ Session::get('status') }}</p>
+                        <p class="alert alert-info">{{ Session::get('status') }}</p>
+                    @endif
+                    @if (\Session::has('success'))
+                        <div class="alert alert-success">
+                            {!! \Session::get('success') !!}
+                        </div>
                     @endif
                     @if (!empty($status))
                     <div class="alert alert-info" role="alert">
@@ -36,11 +41,12 @@
                                                 </a>
                                             </button>
                                             @else
-                                            <button type="button" class="btn btn-success">
-                                                <a class="nav-link active" aria-current="page" href="#">
-                                                    {{ __('Request') }}
-                                                </a>
-                                            </button>
+                                            <form method="post" action="{{ route('requestKey.create') }}">
+                                                @csrf
+                                                <input type="hidden" name="user_id_owner" value="{{ $user->id }}">
+                                                <input type="hidden" name="file_id" value="{{ $item->id }}">
+                                                <button type="submit" class="btn btn-success">{{ __('Request') }}</button>
+                                            </form>
                                             @endif
                                         </div>
                                     </div>
