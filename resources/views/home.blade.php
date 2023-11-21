@@ -26,7 +26,7 @@
 
                                 <div class="col-md-6">
                                     <button type="button" class="btn btn-primary">
-                                        <a class="nav-link active" aria-current="page" href="{{ route('file.password', $file->id) }}">
+                                        <a class="nav-link active" aria-current="page" href="{{ route('file.show', $file->id) }}">
                                             {{ __('Details') }}
                                         </a>
                                     </button>

@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PublicKey extends Model
+class UserKey extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'public_key', 'public_IV'];
+    protected $fillable = ['user_id', 'user_key'];
 
     public function user(): BelongsTo{
         return $this->belongsTo(User::class);

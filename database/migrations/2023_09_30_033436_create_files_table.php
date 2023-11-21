@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->binary('filename');
+            $table->binary('enc_key');
             $table->string('filecode');
             $table->string('filetype');
             $table->string('mime');

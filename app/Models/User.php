@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use phpseclib3\Crypt\RC4;
 
 class User extends Authenticatable
 {
@@ -19,12 +20,11 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+
     protected $fillable = [
         'username',
         'email',
-        'password',
-        'encryption_method',
-        'encryption_mode'
+        'password'
     ];
 
     /**
@@ -52,9 +52,9 @@ class User extends Authenticatable
         return $this->hasOne(Biodata::class);
     }
 
-    public function publicKey(): HasOne
+    public function userKey(): HasOne
     {
-        return $this->hasOne(PublicKey::class);
+        return $this->hasOne(UserKey::class);
     }
 
     public function files(): HasMany
