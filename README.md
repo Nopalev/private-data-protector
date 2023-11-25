@@ -162,3 +162,7 @@ Then, the owner of the file get a key to decrypt the file. The key then can be s
 
 Everyone can request the same file, but may get different key to decrypt the file.
 This is can reduce the risk of the file being decrypted by unauthorized user.
+
+#### References
+
+https://github.com/paragonie/halite/blob/master/doc/Basic.md
