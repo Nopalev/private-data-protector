@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use phpseclib3\Crypt\RC4;
+use ParagonIE\Halite\KeyFactory;
+use ParagonIE\HiddenString\HiddenString;
 
 class RequestKeyController extends Controller
 {
@@ -38,14 +40,33 @@ class RequestKeyController extends Controller
 
         return redirect()->back()->with('success', 'File request has been sent to the owner.');   
     }
-
+    
     public function update(Request $request) {
+        $files = User::find(Auth::user()->id)->files;
         $req = RequestKey::find($request->id);
+        $symmetricKey = KeyFactory::generateEncryptionKey();
+        $asymmetricKey = KeyFactory::generateEncryptionKeyPair();
+        $req->user_id_req = Auth::user()->id;
+        $req->user_id_owner = $request->user_id_owner;
+        $req->file_id = $request->file_id;
+        $req->status = 'accepted';
+        KeyFactory::save($asymmetricKey, storage_path('app/public/keys/' . $request->user_id_owner . '.key'));
+        // $symmetricKey = KeyFactory::loadEncryptionKey('app/public/keys/' . $request->user_id_owner . '.key');
+        $symmetricText = \ParagonIE\Halite\Symmetric\Crypto ::encrypt(new HiddenString($files), $symmetricKey);
+        
+        $alice_keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
+        $alice_secret = $alice_keypair->getSecretKey();
+        $alice_public = $alice_keypair->getPublicKey();
+        $send_to_bob = sodium_bin2hex($alice_public->getRawKeyMaterial());
 
+        // dd($symmetricKey, $asymmetricKey);
+        
         $req->update([
             'status' => 'accepted',
+            'symmetricKey' => $symmetricKey,
+            'keypair' => $send_to_bob
         ]);
-
-        return redirect()->back()->with('success', 'Updated status request file.');
+        
+        return redirect()->back()->with('success', $symmetricKey);
     }
 }
