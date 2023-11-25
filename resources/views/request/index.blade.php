@@ -15,6 +15,7 @@
                     @endif
                     @if (\Session::has('success'))
                         <div class="alert alert-success">
+                            <p>Request Accepted! Please share the key below:</p>
                             {!! \Session::get('success') !!}
                         </div>
                     @endif
@@ -35,7 +36,6 @@
                                         <form method="post" action="{{ route('requestKey.update') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $request->id }}">
-                                            <input type="hidden" name="file_id" value="{{ $file->id }}">
                                             <button type="submit" class="btn btn-success">{{ __('Accept') }}</button>
                                         </form>
                                         @elseif($request->status == 'accepted')

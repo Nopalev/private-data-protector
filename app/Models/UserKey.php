@@ -10,7 +10,7 @@ class UserKey extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'user_key'];
+    protected $fillable = ['user_id', 'user_key', 'public_key'];
 
     public function user(): BelongsTo{
         return $this->belongsTo(User::class);

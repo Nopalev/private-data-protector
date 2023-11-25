@@ -73,6 +73,8 @@ Route::middleware('auth')->group(function(){
         Route::get('/request', 'index')->name('requestKey.index');
         Route::post('/request/create', 'create')->name('requestKey.create');
         Route::post('/request/update', 'update')->name('requestKey.update');
+        Route::get('/request/download/{id}', 'form')->name('requestKey.form');
+        Route::post('/request/download/{id}', 'download')->name('requestKey.download');
     });
 
     //Pool Controller filled with file from every user, can only be opened by inserting assymetric key
