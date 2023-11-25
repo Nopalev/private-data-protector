@@ -20,7 +20,7 @@ return new class extends Migration
             $table->foreign('user_id_req')->references('id')->on('users');
             $table->foreign('file_id')->references('id')->on('files');
             $table->enum('status', ['waiting', 'accepted', 'declined']);
-            $table->string('symmetricKey');
+            $table->longText('symmetricKey');
             $table->timestamps();
         });
     }

@@ -6,8 +6,10 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\Password;
+use ParagonIE\Halite\KeyFactory;
 
 class AuthController extends Controller
 {
@@ -50,8 +52,18 @@ class AuthController extends Controller
 
         $registered_user = User::create($user);
 
+        $keypair = \ParagonIE\Halite\KeyFactory::generateEncryptionKeyPair();
+        $secretKey = $keypair->getSecretKey();
+        $publicKey = $keypair->getPublicKey();
+
+        $hex_public = sodium_bin2hex($publicKey->getRawKeyMaterial());
+        $hex_secret = sodium_bin2hex($secretKey->getRawKeyMaterial());
+
+        Storage::put('keys/' . $request->username . '.key', $hex_secret);
+
         $registered_user->userKey()->create([
-            'user_key' => Str::random(16)
+            'user_key' => Str::random(16),
+            'public_key' => $hex_public,
         ]);
 
         if (Auth::attempt($user)) {

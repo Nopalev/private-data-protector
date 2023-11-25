@@ -47,6 +47,12 @@
                                                 <input type="hidden" name="file_id" value="{{ $item->id }}">
                                                 <button type="submit" class="btn btn-success">{{ __('Request') }}</button>
                                             </form>
+                                            @foreach($requests as $req)
+                                                @if($req->file_id == $item->id && $req->status == "accepted")
+                                                    <a href="{{ route('requestKey.form', $req->id) }}" type="submit" class="btn btn-primary"> Download </a>
+                                                    @break
+                                                @endif
+                                            @endforeach
                                             @endif
                                         </div>
                                     </div>
