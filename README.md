@@ -144,3 +144,21 @@ In order to send download response with user's file, we decrypt the requested fi
 #### `php artisan dataset:seed`
 
 This command is used to seed the database with datasets used for analyze every combination of encryption methods and modes.
+
+# Information Security Project Phase 2
+
+## Additional Features
+
+### 1. File Pool
+
+contains all files that have been uploaded by users
+
+### 2. File Sharing
+
+users can share their files to other users by requesting the file to be shared, and the owner of the file can accept the request.
+Then, the owner of the file get a key to decrypt the file. The key then can be shared to the requested user of the file.
+
+### 3. About the Shared Key
+
+Everyone can request the same file, but may get different key to decrypt the file.
+This is can reduce the risk of the file being decrypted by unauthorized user.
