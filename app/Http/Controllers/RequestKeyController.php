@@ -64,7 +64,7 @@ class RequestKeyController extends Controller
         $symmetricKey = KeyFactory::generateEncryptionKey();
         $hex_symmetric = KeyFactory::export($symmetricKey)->getString();
 
-        $public_key = $req->user_owner->userKey->public_key;
+        $public_key = $req->user_req->userKey->public_key;
         $private_key = Storage::get('keys/' . $req->user_owner->username . '.key');
 
         $hex_public = new HiddenString(sodium_hex2bin($public_key));
@@ -99,7 +99,7 @@ class RequestKeyController extends Controller
         $req = RequestKey::find($request->id);
         $symkey = $req->symmetricKey;
 
-        $public_key = $req->user_owner->userKey->public_key;
+        $public_key = $req->user_req->userKey->public_key;
         $private_key = Storage::get('keys/' . $req->user_owner->username . '.key');
 
         $hex_public = new HiddenString(sodium_hex2bin($public_key));
