@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\DES;
 use phpseclib3\Crypt\RC4;
+use App\Services\CryptoService;
 
 class EncryptionController extends Controller
 {
@@ -209,5 +210,59 @@ class EncryptionController extends Controller
             $entropy -= $probability * log($probability, 2);
         }
         return $entropy;
+    }
+
+    public function generateSignature($userId, $documentContent, $privateKey)
+    {
+        // Hash the document content (excluding the signature)
+        $documentHash = hash('sha256', $documentContent);
+
+        // Sign the hash with the private key
+        $signature = $this->cryptoService->signData($documentHash, $privateKey);
+
+        // Embed the signature in the PDF content
+        $documentWithSignature = $this->embedSignatureInPDF($documentContent, $signature);
+
+        // Save or update the signed PDF
+        $this->saveSignedPDF($userId, $documentWithSignature);
+    }
+
+    public function verifySignature($userId, $documentContent, $publicKey)
+    {
+        // Extract the signature from the PDF content
+        $signature = $this->extractSignatureFromPDF($documentContent);
+
+        // Hash the document content (excluding the signature)
+        $documentHash = hash('sha256', $documentContent);
+
+        // Verify the signature using the public key
+        $isSignatureValid = $this->cryptoService->verifySignature($documentHash, $signature, $publicKey);
+
+        return $isSignatureValid;
+    }
+
+    private function embedSignatureInPDF($documentContent, $signature)
+    {
+        $signaturePlaceholder = '<<<SIGNATURE>>>'; //replace placeholder string with signature
+        $documentWithSignature = str_replace($signaturePlaceholder, $signature, $documentContent);
+
+        return $documentWithSignature;
+    }
+
+    private function extractSignatureFromPDF($documentContent)
+    {
+        $signatureRegex = '/<<<SIGNATURE>>>(.*?)<<<\/SIGNATURE>>>/s'; //use regular expression to find the signature
+        preg_match($signatureRegex, $documentContent, $matches);
+
+        return isset($matches[1]) ? $matches[1] : null;
+    }
+
+    private function saveSignedPDF($userId, $documentWithSignature)
+    {
+        $filePath = storage_path("app/signed_pdfs/{$userId}_signed.pdf");
+        file_put_contents($filePath, $documentWithSignature);
+
+
+        File::where('user_id', $userId)->update(['signed_pdf_path' => $filePath]);
     }
 }
